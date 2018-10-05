@@ -16,7 +16,7 @@ data = boston.data
 nox = data[:,4]
 dis = data[:,7]
 
-coeff = bestFitCoeff(nox,dis,5)
+coeff = bestFitCoeff(nox,dis,3)
 
 xx = np.linspace(0, 1, 50)
 F = polynom(xx,coeff)

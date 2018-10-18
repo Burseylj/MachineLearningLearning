@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import timeit
 
 
 # We have some O(x^n) algorithm. We want to estimate n.
@@ -26,30 +27,54 @@ def estimateOrder(x,y):
     yp = np.log2(y)
     A = np.column_stack( (np.ones(points), xp ))
 
-    coeff = np.linalg.inv(A.T.dot(A)).dot(A.T).dot(yp)
-    return coeff
+    a,b = np.linalg.inv(A.T.dot(A)).dot(A.T).dot(yp)
+    # return values in the form of runtime = a*n**b
+    return 2**a , b
 
 def fitFunc(a,b):
     def f(x):
-        return 2**a * x**b
+        return a * x**b
     return f
 
+def _randomDataTest():
+    # Random data
+    points = 100
+    data = np.random.random((points,2))
+    x = data[:,0] *  100 + 1
+    y = data[:,1].T 
+    y = 2*x**3 + (y-0.5)/5
+    a,b = estimateOrder(x,y)
 
-# Random data
-points = 100
-data = np.random.random((points,2))
-x = data[:,0] *  100 + 1
-y = data[:,1].T 
-y = 2*x**3 + (y-0.5)/5
-a,b = estimateOrder(x,y)
+    xx = np.linspace(0, 100, 50)
+    F = fitFunc(a,b)
+    yy = F(xx)
 
-xx = np.linspace(0, 100, 50)
-F = fitFunc(a,b)
-yy = F(xx)
+    print "Order is {}".format(b)
 
-print "Order is {}".format(b)
+    plt.figure(1)
+    plt.plot(xx, yy, color='b')
+    plt.scatter(x, y, color='r')
+    plt.show()
 
-plt.figure(1)
-plt.plot(xx, yy, color='b')
-plt.scatter(x, y, color='r')
+# function that goes through n nested loops which each do loopSize calls to f ( y**n ops)
+def nestN(n, loopSize, f):
+    if n >= 1:
+        for x in xrange(loopSize):
+            nestN(n-1, loopSize, f)
+    else:
+       f()
+    return None
+
+# we define some first order functions to test with, that we expect relatively constant
+# execution time from
+funcs = [ lambda : 1000**10, lambda: "hello"+ "world", lambda: [0]*100]
+order = 4
+timeitSize = 1
+        
+x2 = np.arange(1,50,10)
+y2 = [ timeit.timeit(lambda: nestN(order, i, funcs[1]),number=timeitSize) for i in x2]
+plt.figure(2)
+plt.scatter(x2,y2,color='b')
 plt.show()
+print estimateOrder(x2,y2)
+

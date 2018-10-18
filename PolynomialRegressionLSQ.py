@@ -31,11 +31,14 @@ def bestFitCoeff(x,y,order):
 
 
 #we define a function for the best fit polynomial
-def polynom(val,coeff):
-    output = 0
-    for i in xrange(coeff.size):
-        output += coeff[i]*val**i
-    return output
+def polyf(coeff):
+    def polynom(val):
+        output = 0
+        for i in xrange(coeff.size):
+            output += coeff[i]*val**i
+        return output
+    return polynom
+    
 
 if __name__ == "__main__":
     # Random data
@@ -47,10 +50,11 @@ if __name__ == "__main__":
     y = x+ (y-0.5)/5
 
     coeff = bestFitCoeff(x,y,order)
+    polynom = polyf(coeff)
     
     # Plot data, regression line
     xx = np.linspace(0, 1, 50)
-    F = polynom(xx,coeff)
+    F = polynom(xx)
 
     plt.figure(1)
     plt.plot(xx, F, color='b')

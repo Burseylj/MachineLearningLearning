@@ -68,7 +68,7 @@ def nestN(n, loopSize, f):
 # we define some first order functions to test with, that we expect relatively constant
 # execution time from
 funcs = [ lambda : 1000**10, lambda: "hello"+ "world", lambda: [0]*100]
-order = 4
+order = 3
 timeitSize = 1
         
 x2 = np.arange(1,50,10)

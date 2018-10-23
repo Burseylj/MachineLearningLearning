@@ -22,23 +22,29 @@ df = df[['Adj. Close','HL_PCT','PCT_change','Adj. Volume']]
 forecast_cl = 'Adj. Close'
 df.fillna(-99999,inplace=True)
 
-forecast_out = int(math.ceil(0.01*len(df)))
+
+forecast_out = int(math.ceil(0.1*len(df)))
 
 df['label'] = df[forecast_cl].shift(-forecast_out)
+
+X = np.array(df.drop(['label'],1))
+X = preprocessing.scale(X)
+X_lately = X[-forecast_out:]
+X = X[:-forecast_out]
+
+
 df.dropna(inplace=True)
 
 #define features and labels
-X = np.array(df.drop(['label'],1))
+
 
 #scaling data for easier analysis
 #preprocessing will mess up real time analysis, you'd have to preprocess real time
-X = preprocessing.scale(X)
-X_lately = X[-forecast_out:]
-X = X[:-forecast_out:]
+
 
 
 y=np.array(df['label'])
-y = y[:-forecast_out]
+
 #get training and testing sets
 X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2)
 

@@ -2,13 +2,24 @@ from statistics import mean
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import style
+import random
 
-style.use("fivethirtyeight")
-# we build a simple linear least squares regression algorithm
 
-# define test data
-xs = np.arange(1,7, dtype=np.float64)
-ys = np.array([5,4,6,5,6,7], dtype=np.float64)
+
+
+
+def createDataset(hm,variance,step=2,correlation=False):
+    val = 1
+    ys = []
+    for i in xrange(hm):
+        y = val + random.randrange(-variance,variance)
+        ys.append(y)
+        if correlation and correlation == 'pos':
+            val += step
+        elif correlation and correlation == 'neg':
+            val -= step
+    xs = range(len(ys))
+    return np.array(xs, dtype=np.float64), np.array(ys, dtype=np.float64)
 
 def bestFitCoeffs(xs,ys):
     # store values to avoid 
@@ -20,14 +31,16 @@ def bestFitCoeffs(xs,ys):
     b = mys - m * mxs
     return m, b
 
-sqError = lambda ys, ysReg : sum((ysReg-ys)**2)
+#we find the coefficient of determination
 def coeffDet(ys, ysReg):
+    #define function for square error
+    sqError = lambda ys, ysReg : sum((ysReg-ys)**2)
     mys = mean(ys)
     sqErrorYsReg = sqError(ys, ysReg)
     sqErrorMys = sqError(ys, mys)
     return 1 - sqErrorYsReg/sqErrorMys
 
-m,b = bestFitCoeffs(xs,ys)
+
 
 #show regression line
 print "y = {}*x + {}".format(round(m,4),b)
@@ -37,16 +50,24 @@ def getRegrF(m,b):
     def regrF(x):
         return m*x + b
     return regrF
-regrF = getRegrF(m,b)
 
-# make some prediction
-predictX = 8
-predictY = regrF(predictX)
 
-rSq = coeffDet(ys,regrF(xs))
-print "r squared = {}".format(rSq)
+if __name__=="__main__":
+    style.use("fivethirtyeight")
+    xs, ys = createDataset(40,40,correlation='pos')
 
-plt.scatter(xs,ys)
-plt.scatter(predictX,predictY,color='red')
-plt.plot(xs,regrF(xs))
-plt.show()
+    #get regression line
+    m,b = bestFitCoeffs(xs,ys)
+    regrF = getRegrF(m,b)
+
+    # make some prediction
+    predictX = max(xs) + 1
+    predictY = regrF(predictX)
+
+    rSq = coeffDet(ys,regrF(xs))
+    print "r squared = {}".format(rSq)
+
+    plt.scatter(xs,ys)
+    plt.scatter(predictX,predictY,color='red')
+    plt.plot(xs,regrF(xs))
+    plt.show()
